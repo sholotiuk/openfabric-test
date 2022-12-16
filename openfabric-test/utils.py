@@ -55,24 +55,6 @@ transformers.logging.set_verbosity_error()
 logger = setup_logger(__name__)
 
 
-def set_seed(seed):
-    """Set seed globally."""
-    random.seed(seed)
-    np.random.seed(seed)
-    try:
-        import torch
-
-        torch.manual_seed(seed)
-    except:
-        pass
-    try:
-        import tensorflow as tf
-
-        tf.random.set_seed(seed)
-    except:
-        pass
-
-
 def parse_optional_int(config, section, option):
     value = config.get(section, option)
     return int(value) if value is not None else None
@@ -105,7 +87,6 @@ def parse_config(config_path):
     return dict(
         general_params=dict(
             device=parse_optional_int(config, 'general_params', 'device'),
-            seed=parse_optional_int(config, 'general_params', 'seed'),
             debug=parse_optional_bool(config, 'general_params', 'debug')
         ),
         generation_pipeline_kwargs=dict(
@@ -120,8 +101,6 @@ def parse_config(config_path):
             do_sample=parse_optional_bool(config, 'generator_kwargs', 'do_sample'),
             early_stopping=parse_optional_bool(config, 'generator_kwargs', 'early_stopping'),
             num_beams=parse_optional_int(config, 'generator_kwargs', 'num_beams'),
-            num_beam_groups=parse_optional_int(config, 'generator_kwargs', 'num_beam_groups'),
-            diversity_penalty=parse_optional_float(config, 'generator_kwargs', 'diversity_penalty'),
             temperature=parse_optional_float(config, 'generator_kwargs', 'temperature'),
             top_k=parse_optional_int(config, 'generator_kwargs', 'top_k'),
             top_p=parse_optional_float(config, 'generator_kwargs', 'top_p'),
@@ -166,11 +145,8 @@ def clean_text(txt):
     return ' '.join(txt.strip().split())
 
 
-def generate_responses(prompt, pipeline, seed=None, debug=False, **kwargs):
+def generate_responses(prompt, pipeline, debug=False, **kwargs):
     """Generate responses using a text generation pipeline."""
-    if seed is not None:
-        set_seed(seed)
-
     outputs = pipeline(prompt, **kwargs)
     responses = list(map(lambda x: clean_text(x['generated_text'][len(prompt):]), outputs))
     if debug:

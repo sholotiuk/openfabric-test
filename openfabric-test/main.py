@@ -37,7 +37,6 @@ def execute(request: SimpleText, ray: OpenfabricExecutionRay) -> SimpleText:
     # Extract parameters
     general_params = kwargs.get('general_params', {})
     device = general_params.get('device', -1)
-    seed = general_params.get('seed', None)
     debug = general_params.get('debug', False)
 
     generation_pipeline_kwargs = kwargs.get('generation_pipeline_kwargs', {})
@@ -100,7 +99,6 @@ def execute(request: SimpleText, ray: OpenfabricExecutionRay) -> SimpleText:
         bot_messages = generate_responses(
             prompt,
             generation_pipeline,
-            seed=seed,
             debug=debug,
             **generator_kwargs
         )
